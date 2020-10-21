@@ -1,6 +1,7 @@
 /*global chrome*/
+
 function onClick(id, callback) {
-    document.getElementById(id).addEventListener("click", (_) => callback());
+    document.getElementById(id).addEventListener("click", () => callback());
 }
 
 function setHtml(id, html) {
@@ -152,34 +153,24 @@ function makeItem(title, url, id) {
     oc.className = "other-content";
     // other content -- end
 
-    // makeFeatured button
-    const makeFeatured = document.createElement("i");
-    makeFeatured.appendChild(document.createTextNode("bookmark"));
-    makeFeatured.className = "material-icons action-btn";
-    makeFeatured.setAttribute("bookmarkId", id);
-    makeFeatured.addEventListener("click", (_) => doMakeFeatured(id));
-    // done button -- end
+    // buttons -- start
+    const makeButton = (icon, callback) => {
+        const btn = document.createElement("i");
+        btn.appendChild(document.createTextNode(icon));
+        btn.className = "material-icons action-btn";
+        btn.setAttribute("bookmarkId", id);
+        btn.addEventListener("click", callback);
+        return btn;
+    };
 
-    // buttons
-    // done button
-    const done = document.createElement("i");
-    done.appendChild(document.createTextNode("done"));
-    done.className = "material-icons action-btn";
-    done.setAttribute("bookmarkId", id);
-    done.addEventListener("click", (_) => doneBookmark(id));
-    // done button -- end
+    const btnMakeFeatured = makeButton("bookmark", () => doMakeFeatured(id))
+    const btnDone = makeButton("done", () => doneBookmark(id))
+    const btnDeleteBtn = makeButton("delete", () => deleteBookmark(id))
 
-    // delete button
-    const deleteBtn = document.createElement("i");
-    deleteBtn.appendChild(document.createTextNode("delete"));
-    deleteBtn.className = "material-icons action-btn";
-    deleteBtn.setAttribute("bookmarkId", id);
-    deleteBtn.addEventListener("click", (_) => deleteBookmark(id));
-    // delete button -- end
-
-    oc.appendChild(makeFeatured);
-    oc.appendChild(done);
-    oc.appendChild(deleteBtn);
+    oc.appendChild(btnMakeFeatured);
+    oc.appendChild(btnDone);
+    oc.appendChild(btnDeleteBtn);
+    // buttons -- end
 
     item.appendChild(a);
     item.appendChild(oc);
