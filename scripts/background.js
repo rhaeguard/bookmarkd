@@ -1,3 +1,4 @@
+/*global chrome*/
 chrome.browserAction.onClicked.addListener(({ title, url }) => {
     const store = chrome.storage.sync;
     store.get(["bookmarkieDatabase"], ({ bookmarkieDatabase }) => {

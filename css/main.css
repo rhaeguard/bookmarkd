@@ -3,14 +3,17 @@ body {
         sans-serif;
     font-size: 14px;
 }
+
 .customized {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
+
 .primary-content {
     flex: 10;
 }
+
 .other-content {
     flex: 1.5;
     display: flex;
