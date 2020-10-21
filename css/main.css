@@ -4,9 +4,9 @@ body {
     font-size: 14px;
 }
 .customized {
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: space-between !important;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
 .primary-content {
     flex: 10;
@@ -23,9 +23,9 @@ body {
 }
 
 .featured-item {
-    border: 1px solid #1e88e5 !important;
-    box-sizing: border-box !important;
-    box-shadow: unset !important;
+    border: 1px solid #1e88e5;
+    box-sizing: border-box;
+    box-shadow: unset;
 }
 
 .dark-orange-text {
