@@ -6,60 +6,23 @@
             name="viewport"
             content="width=device-width, initial-scale=1, shrink-to-fit=no"
         />
-        <title>Document</title>
+        <title>Bookmarkie</title>
 
         <link rel="stylesheet" href="./css/materialize.min.css" />
+        <link rel="stylesheet" href="./css/main.css" />
         <link
             href="https://fonts.googleapis.com/icon?family=Material+Icons"
             rel="stylesheet"
         />
-        <style>
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, Segoe UI,
-                    Helvetica, Arial, sans-serif;
-                font-size: 14px;
-            }
-            .customized {
-                display: flex !important;
-                flex-direction: row !important;
-                justify-content: space-between !important;
-            }
-            .primary-content {
-                flex: 10;
-            }
-            .other-content {
-                flex: 1;
-                display: flex;
-                flex-direction: row;
-                justify-content: space-around;
-            }
-
-            .action-btn:hover {
-                cursor: pointer;
-            }
-        </style>
     </head>
     <body>
-        <h1 class="center-align">bookmarks</h1>
+        <h1 class="center-align">bookmarkie</h1>
 
         <div class="container" id="root">
+            <div id="featured"></div>
             <div class="collection" id="items">
                 <p class="center">no bookmarks</p>
             </div>
-
-            <!-- <div class="collection">
-                <div class="collection-item customized">
-                    <a href="#" class="primary-content">Title</a>
-                    <div class="other-content">
-                        <i class="material-icons action-btn" bookmarkId="1"
-                            >done</i
-                        >
-                        <i class="material-icons action-btn" bookmarkId="1"
-                            >delete</i
-                        >
-                    </div>
-                </div>
-            </div> -->
         </div>
 
         <script src="./scripts/materialize.js"></script>
