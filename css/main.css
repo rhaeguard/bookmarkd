@@ -1,16 +1,18 @@
 body {
-    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial,
-        sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif;
     font-size: 14px;
 }
+
 .customized {
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: space-between !important;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
+
 .primary-content {
     flex: 10;
 }
+
 .other-content {
     flex: 1.5;
     display: flex;
@@ -23,9 +25,9 @@ body {
 }
 
 .featured-item {
-    border: 1px solid #1e88e5 !important;
-    box-sizing: border-box !important;
-    box-shadow: unset !important;
+    border: 1px solid #1e88e5;
+    box-sizing: border-box;
+    box-shadow: unset;
 }
 
 .dark-orange-text {

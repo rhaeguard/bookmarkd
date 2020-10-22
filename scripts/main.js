@@ -1,20 +1,11 @@
-chrome.storage.sync.get(["bookmarkieDatabase"], ({ bookmarkieDatabase }) => {
-    if (bookmarkieDatabase) {
-        const db = JSON.parse(bookmarkieDatabase);
-        const saved = db.saved;
-        doDisplayAllItems(saved);
-    }
-});
+/*global chrome*/
 
-function doDisplayAllItems(items) {
-    if (items) {
-        const filtered = items.filter((b) => !b.done);
-        const [first, ...others] = filtered;
-        displayFeatured(first);
-        if (others.length >= 0) {
-            displayItems(others);
-        }
-    }
+function onClick(id, callback) {
+    document.getElementById(id).addEventListener("click", () => callback());
+}
+
+function setHtml(id, html) {
+    document.getElementById(id).innerHTML = html;
 }
 
 function displayFeatured(bookmark) {
@@ -45,12 +36,30 @@ function displayFeatured(bookmark) {
     }
 }
 
-function onClick(id, callback) {
-    document.getElementById(id).addEventListener("click", (_) => callback());
+function displayItems(items) {
+    const collection = document.getElementById("items");
+    collection.innerHTML = "";
+    if (items.length > 0) {
+        items.forEach(({ id, title, url }) => {
+            collection.append(makeItem(title, url, id));
+        });
+    } else {
+        const noBookmarks = document.createElement("p");
+        noBookmarks.appendChild(document.createTextNode("no bookmarks"));
+        noBookmarks.className = "center";
+        collection.append(noBookmarks);
+    }
 }
 
-function setHtml(id, html) {
-    document.getElementById(id).innerHTML = html;
+function doDisplayAllItems(items) {
+    if (items) {
+        const filtered = items.filter((b) => !b.done);
+        const [first, ...others] = filtered;
+        displayFeatured(first);
+        if (others.length >= 0) {
+            displayItems(others);
+        }
+    }
 }
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
@@ -65,19 +74,52 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     }
 });
 
-function displayItems(items) {
-    const collection = document.getElementById("items");
-    collection.innerHTML = "";
-    if (items.length > 0) {
-        items.forEach(({ id, title, url }) => {
-            collection.append(makeItem(title, url, id));
-        });
-    } else {
-        const noBookmarks = document.createElement("p");
-        noBookmarks.appendChild(document.createTextNode("no bookmarks"));
-        noBookmarks.className = "center";
-        collection.append(noBookmarks);
+chrome.storage.sync.get(["bookmarkieDatabase"], ({ bookmarkieDatabase }) => {
+    if (bookmarkieDatabase) {
+        const db = JSON.parse(bookmarkieDatabase);
+        const saved = db.saved;
+        doDisplayAllItems(saved);
     }
+});
+
+function makeDbObj(obj) {
+    return {
+        bookmarkieDatabase: JSON.stringify({
+            saved: obj,
+        }),
+    };
+}
+
+function doneBookmark(id) {
+    const store = chrome.storage.sync;
+    store.get(null, ({ bookmarkieDatabase }) => {
+        const bookmarks = JSON.parse(bookmarkieDatabase).saved;
+        for (let b of bookmarks) {
+            if (b.id === id) {
+                b.done = true;
+            }
+        }
+
+        store.set(makeDbObj(bookmarks));
+    });
+}
+
+function deleteBookmark(id) {
+    const store = chrome.storage.sync;
+    store.get(null, ({ bookmarkieDatabase }) => {
+        const bookmarks = JSON.parse(bookmarkieDatabase).saved;
+        store.set(makeDbObj(bookmarks.filter((x) => x.id !== id)));
+    });
+}
+
+function doMakeFeatured(id) {
+    const store = chrome.storage.sync;
+    store.get(null, ({ bookmarkieDatabase }) => {
+        const oldBookmarks = JSON.parse(bookmarkieDatabase).saved;
+        const b = oldBookmarks.find((x) => x.id === id && !x.done);
+        const newBookmarks = oldBookmarks.filter((x) => x.id !== id);
+        store.set(makeDbObj([b, ...newBookmarks]));
+    });
 }
 
 function makeItem(title, url, id) {
@@ -111,79 +153,29 @@ function makeItem(title, url, id) {
     oc.className = "other-content";
     // other content -- end
 
-    // makeFeatured button
-    const makeFeatured = document.createElement("i");
-    makeFeatured.appendChild(document.createTextNode("bookmark"));
-    makeFeatured.className = "material-icons action-btn";
-    makeFeatured.setAttribute("bookmarkId", id);
-    makeFeatured.addEventListener("click", (_) => doMakeFeatued(id));
-    // done button -- end
+    // buttons -- start
+    const makeButton = (icon, callback) => {
+        const btn = document.createElement("i");
+        btn.appendChild(document.createTextNode(icon));
+        btn.className = "material-icons action-btn";
+        btn.setAttribute("bookmarkId", id);
+        btn.addEventListener("click", callback);
+        return btn;
+    };
 
-    // buttons
-    // done button
-    const done = document.createElement("i");
-    done.appendChild(document.createTextNode("done"));
-    done.className = "material-icons action-btn";
-    done.setAttribute("bookmarkId", id);
-    done.addEventListener("click", (_) => doneBookmark(id));
-    // done button -- end
+    const btnMakeFeatured = makeButton("bookmark", () => doMakeFeatured(id))
+    const btnDone = makeButton("done", () => doneBookmark(id))
+    const btnDeleteBtn = makeButton("delete", () => deleteBookmark(id))
 
-    // delete button
-    const deleteBtn = document.createElement("i");
-    deleteBtn.appendChild(document.createTextNode("delete"));
-    deleteBtn.className = "material-icons action-btn";
-    deleteBtn.setAttribute("bookmarkId", id);
-    deleteBtn.addEventListener("click", (_) => deleteBookmark(id));
-    // delete button -- end
-
-    oc.appendChild(makeFeatured)
-    oc.appendChild(done);
-    oc.appendChild(deleteBtn);
+    oc.appendChild(btnMakeFeatured);
+    oc.appendChild(btnDone);
+    oc.appendChild(btnDeleteBtn);
+    // buttons -- end
 
     item.appendChild(a);
     item.appendChild(oc);
 
     return item;
-}
-
-function makeDbObj(obj) {
-    return {
-        bookmarkieDatabase: JSON.stringify({
-            saved: obj,
-        }),
-    };
-}
-
-function doneBookmark(id) {
-    const store = chrome.storage.sync;
-    store.get(null, ({ bookmarkieDatabase }) => {
-        const bookmarks = JSON.parse(bookmarkieDatabase).saved;
-        for (let b of bookmarks) {
-            if (b.id === id) {
-                b.done = true;
-            }
-        }
-
-        store.set(makeDbObj(bookmarks));
-    });
-}
-
-function deleteBookmark(id) {
-    const store = chrome.storage.sync;
-    store.get(null, ({ bookmarkieDatabase }) => {
-        const bookmarks = JSON.parse(bookmarkieDatabase).saved;
-        store.set(makeDbObj(bookmarks.filter((x) => x.id !== id)));
-    });
-}
-
-function doMakeFeatued(id) {
-    const store = chrome.storage.sync;
-    store.get(null, ({ bookmarkieDatabase }) => {
-        const oldBookmarks = JSON.parse(bookmarkieDatabase).saved;
-        const b = oldBookmarks.find((x) => x.id === id && !x.done);
-        const newBookmarks = oldBookmarks.filter((x) => x.id !== id);
-        store.set(makeDbObj([b, ...newBookmarks]));
-    });
 }
 
 /**
