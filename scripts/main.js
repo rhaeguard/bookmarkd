@@ -1,5 +1,35 @@
 /*global chrome*/
 
+new Sortable(document.getElementById("items"), {
+    animation: 150,
+    onEnd: function () {
+        let elements = document.getElementsByClassName("customized");
+        
+        const ids = [...elements].map(e => e.getAttribute("bookmarkId"));
+
+        const featuredId = document
+            .getElementById("featured-item")
+            .getAttribute("bookmarkId");
+
+        const store = chrome.storage.sync;
+        store.get(null, ({ bookmarkieDatabase }) => {
+            const allBookmarks = JSON.parse(bookmarkieDatabase).saved;
+
+            const onlyUndone = allBookmarks.filter((x) => !x.done);
+            const onlyDone = allBookmarks.filter((x) => x.done);
+
+            const featured = onlyUndone.find((x) => x.id === featuredId);
+            const others = onlyUndone.filter((x) => x.id !== featured);
+
+            const newBookmarks = ids.map((id) =>
+                others.find((x) => x.id === id)
+            );
+
+            store.set(makeDbObj([featured, ...newBookmarks, ...onlyDone]));
+        });
+    },
+});
+
 function onClick(id, callback) {
     document.getElementById(id).addEventListener("click", () => callback());
 }
@@ -13,7 +43,7 @@ function displayFeatured(bookmark) {
         const { id, title, description, url, image } = bookmark;
         let html = `
             <div class="col s12 m6">
-                <div class="card featured-item">
+                <div class="card" id="featured-item" bookmarkId="${id}">
                     <div class="card-content blue-text">
                         <a class="card-title blue-text" href="${url}">${title}</a>
                         <p>${description === null ? "" : description}</p>
@@ -138,6 +168,7 @@ function makeItem(title, url, id) {
         </div> */
     const item = document.createElement("div");
     item.className = "collection-item customized";
+    item.setAttribute("bookmarkId", id);
 
     // title and link
     const a = document.createElement("a");
@@ -163,9 +194,9 @@ function makeItem(title, url, id) {
         return btn;
     };
 
-    const btnMakeFeatured = makeButton("bookmark", () => doMakeFeatured(id))
-    const btnDone = makeButton("done", () => doneBookmark(id))
-    const btnDeleteBtn = makeButton("delete", () => deleteBookmark(id))
+    const btnMakeFeatured = makeButton("bookmark", () => doMakeFeatured(id));
+    const btnDone = makeButton("done", () => doneBookmark(id));
+    const btnDeleteBtn = makeButton("delete", () => deleteBookmark(id));
 
     oc.appendChild(btnMakeFeatured);
     oc.appendChild(btnDone);

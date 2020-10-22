@@ -24,7 +24,7 @@ body {
     cursor: pointer;
 }
 
-.featured-item {
+#featured-item {
     border: 1px solid #1e88e5;
     box-sizing: border-box;
     box-shadow: unset;
