@@ -8,7 +8,8 @@ function makeDbObj(obj) {
     };
 }
 
-const _ = new Sortable(document.getElementById("items"), {
+// eslint-disable-next-line no-unused-vars
+const _ = new Sortable(document.getElementById("items"), { 
     animation: 150,
     onEnd: () => {
         let elements = document.getElementsByClassName("customized");
