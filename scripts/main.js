@@ -1,11 +1,19 @@
-/*global chrome*/
+/*global chrome, Sortable*/
 
-new Sortable(document.getElementById("items"), {
+function makeDbObj(obj) {
+    return {
+        bookmarkieDatabase: JSON.stringify({
+            saved: obj,
+        }),
+    };
+}
+
+const _ = new Sortable(document.getElementById("items"), {
     animation: 150,
-    onEnd: function () {
+    onEnd: () => {
         let elements = document.getElementsByClassName("customized");
-        
-        const ids = [...elements].map(e => e.getAttribute("bookmarkId"));
+
+        const ids = [...elements].map((e) => e.getAttribute("bookmarkId"));
 
         const featuredId = document
             .getElementById("featured-item")
@@ -111,14 +119,6 @@ chrome.storage.sync.get(["bookmarkieDatabase"], ({ bookmarkieDatabase }) => {
         doDisplayAllItems(saved);
     }
 });
-
-function makeDbObj(obj) {
-    return {
-        bookmarkieDatabase: JSON.stringify({
-            saved: obj,
-        }),
-    };
-}
 
 function doneBookmark(id) {
     const store = chrome.storage.sync;
