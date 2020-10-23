@@ -23,10 +23,32 @@
             <div class="collection" id="items">
                 <p class="center">no bookmarks</p>
             </div>
+
+            <div id="doneItems"></div>
+        </div>
+
+        <div class="fixed-action-btn">
+            <a class="btn-floating btn-large red">
+                <i class="large material-icons">menu</i>
+            </a>
+            <ul>
+                <li>
+                    <a
+                        class="btn-floating red tooltipped"
+                        data-position="left"
+                        data-tooltip="Show done"
+                        id="showHideDone"
+                        data-visibility="false"
+                        ><i class="material-icons">insert_chart</i></a
+                    >
+                </li>
+            </ul>
         </div>
 
         <script src="./scripts/sortable.min.js"></script>
         <script src="./scripts/materialize.js"></script>
+        <script src="./scripts/utils.js"></script>
         <script src="./scripts/main.js"></script>
+        <script src="./scripts/init.js"></script>
     </body>
 </html>
