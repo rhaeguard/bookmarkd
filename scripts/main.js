@@ -1,4 +1,5 @@
 /*global setHtml, onClick, getShowHideElement, makeDbObj, withStore*/
+/*exported displayCurrentUndoneBookmarks */
 
 function displayFeaturedBookmark(bookmark) {
     if (bookmark) {
@@ -52,12 +53,6 @@ function displayAllBookmarks(items) {
             displayBookmarks(others);
         }
     }
-}
-
-function displayCurrentUndoneBookmarks() {
-    withStore((_, bookmarks) => {
-        displayAllBookmarks(bookmarks);
-    });
 }
 
 function doneBookmark(id) {

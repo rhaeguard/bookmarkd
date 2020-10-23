@@ -1,4 +1,4 @@
-// parser part
+/* exported getMetaInfo */
 const parser = new DOMParser();
 
 function retrieveMetaFromHtmlText(htmlText) {

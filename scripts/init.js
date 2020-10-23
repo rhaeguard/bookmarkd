@@ -1,4 +1,10 @@
-/*global chrome, Sortable, displayCurrentUndoneBookmarks, M, makeDbObj, displayAllBookmarks*/
+/*global chrome, Sortable, displayCurrentUndoneBookmarks, M, makeDbObj, displayAllBookmarks, withStore, _*/
+
+function displayCurrentUndoneBookmarks() {
+    withStore((_, bookmarks) => {
+        displayAllBookmarks(bookmarks);
+    });
+}
 
 displayCurrentUndoneBookmarks();
 

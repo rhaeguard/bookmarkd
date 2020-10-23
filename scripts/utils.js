@@ -1,4 +1,5 @@
 /*global chrome*/
+/*exported onClick, setHtml, makeDbObj, withStore, getShowHideElement */
 
 function onClick(id, callback) {
     document.getElementById(id).addEventListener("click", () => callback());
