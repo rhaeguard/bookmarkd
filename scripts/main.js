@@ -1,13 +1,4 @@
-/*global chrome*/
-
-function displayDoneBookmarks() {
-    withStore((_, bookmarks) => {
-        const onlyDone = bookmarks.filter((x) => x.done);
-        displayBookmarks(onlyDone, "doneItems", true);
-        document.getElementById("doneItems").className = "collection";
-        getShowHideElement().setAttribute("data-visibility", "true");
-    });
-}
+/*global setHtml, onClick, getShowHideElement, makeDbObj, withStore*/
 
 function displayFeaturedBookmark(bookmark) {
     if (bookmark) {
@@ -82,8 +73,18 @@ function doneBookmark(id) {
     });
 }
 
+function displayDoneBookmarks() {
+    withStore((_, bookmarks) => {
+        const onlyDone = bookmarks.filter((x) => x.done);
+        displayBookmarks(onlyDone, "doneItems", true);
+        document.getElementById("doneItems").className = "collection";
+        getShowHideElement().setAttribute("data-visibility", "true");
+    });
+}
+
 function updatDoneBookmarksIfVisible() {
-    const showDone = getShowHideElement().getAttribute("data-visibility") === "true";
+    const showDone =
+        getShowHideElement().getAttribute("data-visibility") === "true";
     if (showDone) {
         displayDoneBookmarks();
     }

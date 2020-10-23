@@ -1,4 +1,4 @@
-/*global chrome, Sortable*/
+/*global chrome, Sortable, displayCurrentUndoneBookmarks, M, makeDbObj, displayAllBookmarks*/
 
 displayCurrentUndoneBookmarks();
 
@@ -47,9 +47,6 @@ displayCurrentUndoneBookmarks();
     });
 })();
 
-registerShowHideButtonListener();
-registerOnStorageUpdateListener();
-
 function registerShowHideButtonListener() {
     getShowHideElement().addEventListener("click", () => {
         const showDone = getShowHideElement().getAttribute("data-visibility") === "false";
@@ -75,3 +72,6 @@ function registerOnStorageUpdateListener() {
         }
     });
 }
+
+registerShowHideButtonListener();
+registerOnStorageUpdateListener();

@@ -1,3 +1,5 @@
+/*global chrome*/
+
 function onClick(id, callback) {
     document.getElementById(id).addEventListener("click", () => callback());
 }
@@ -23,5 +25,5 @@ function withStore(callback) {
 }
 
 function getShowHideElement() {
-    return document.getElementById("showHideDone")
+    return document.getElementById("showHideDone");
 }
