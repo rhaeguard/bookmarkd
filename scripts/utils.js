@@ -25,8 +25,7 @@ function makeElement(type, classes, attributes = {}, children = []) {
     const e = document.createElement(type);
     e.className = classes;
 
-    for (let key in attributes) {
-        const value = attributes[key];
+    for (const [key, value] of Object.entries(attributes)) {
         e.setAttribute(key, value);
     }
 
@@ -43,7 +42,7 @@ function makeAnchor(classes, title, url, id) {
         classes,
         {
             href: url,
-            id: id,
+            id,
         },
         [document.createTextNode(title)]
     );

@@ -1,6 +1,65 @@
 /*global makeElement, makeAnchor, getShowHideElement, makeDbObj, withStore*/
 /*exported displayCurrentUndoneBookmarks, displayAllBookmarks */
 
+function doneBookmark(id) {
+    const updatDoneBookmarksIfVisible = () => {
+        const showDone =
+            getShowHideElement().getAttribute("data-visibility") === "true";
+        if (showDone) {
+            displayDoneBookmarks();
+        }
+    };
+
+    withStore((store, bookmarks) => {
+        for (let b of bookmarks) {
+            if (b.id === id) {
+                b.done = true;
+            }
+        }
+        store.set(makeDbObj(bookmarks), () => {
+            updatDoneBookmarksIfVisible();
+        });
+    });
+}
+
+function displayDoneBookmarks() {
+    withStore((_, bookmarks) => {
+        const onlyDone = bookmarks.filter((x) => x.done);
+        displayBookmarks(onlyDone, "doneItems", true);
+        document.getElementById("doneItems").className = "collection";
+        getShowHideElement().setAttribute("data-visibility", "true");
+    });
+}
+
+function undoneBookmark(id) {
+    withStore((store, bookmarks) => {
+        for (let b of bookmarks) {
+            if (b.id === id) {
+                b.done = false;
+            }
+        }
+        const undoneBookmark = bookmarks.find((x) => x.id === id);
+        const withoutUndone = bookmarks.filter((x) => x.id !== id);
+        store.set(makeDbObj([...withoutUndone, undoneBookmark]), () => {
+            displayDoneBookmarks();
+        });
+    });
+}
+
+function deleteBookmark(id) {
+    withStore((store, bookmarks) => {
+        store.set(makeDbObj(bookmarks.filter((x) => x.id !== id)));
+    });
+}
+
+function makeBookmarkFeatured(id) {
+    withStore((store, bookmarks) => {
+        const b = bookmarks.find((x) => x.id === id && !x.done);
+        const newBookmarks = bookmarks.filter((x) => x.id !== id);
+        store.set(makeDbObj([b, ...newBookmarks]));
+    });
+}
+
 function createFeaturedElement(id, title, description, url) {
     const actionBtn = (text, btnId, callback) => {
         const btn = makeAnchor("dark-orange-text", text, "#", btnId);
@@ -99,65 +158,6 @@ function displayAllBookmarks(items) {
     }
 }
 
-function doneBookmark(id) {
-    const updatDoneBookmarksIfVisible = () => {
-        const showDone =
-            getShowHideElement().getAttribute("data-visibility") === "true";
-        if (showDone) {
-            displayDoneBookmarks();
-        }
-    };
-
-    withStore((store, bookmarks) => {
-        for (let b of bookmarks) {
-            if (b.id === id) {
-                b.done = true;
-            }
-        }
-        store.set(makeDbObj(bookmarks), () => {
-            updatDoneBookmarksIfVisible();
-        });
-    });
-}
-
-function displayDoneBookmarks() {
-    withStore((_, bookmarks) => {
-        const onlyDone = bookmarks.filter((x) => x.done);
-        displayBookmarks(onlyDone, "doneItems", true);
-        document.getElementById("doneItems").className = "collection";
-        getShowHideElement().setAttribute("data-visibility", "true");
-    });
-}
-
-function undoneBookmark(id) {
-    withStore((store, bookmarks) => {
-        for (let b of bookmarks) {
-            if (b.id === id) {
-                b.done = false;
-            }
-        }
-        const undoneBookmark = bookmarks.find((x) => x.id === id);
-        const withoutUndone = bookmarks.filter((x) => x.id !== id);
-        store.set(makeDbObj([...withoutUndone, undoneBookmark]), () => {
-            displayDoneBookmarks();
-        });
-    });
-}
-
-function deleteBookmark(id) {
-    withStore((store, bookmarks) => {
-        store.set(makeDbObj(bookmarks.filter((x) => x.id !== id)));
-    });
-}
-
-function makeBookmarkFeatured(id) {
-    withStore((store, bookmarks) => {
-        const b = bookmarks.find((x) => x.id === id && !x.done);
-        const newBookmarks = bookmarks.filter((x) => x.id !== id);
-        store.set(makeDbObj([b, ...newBookmarks]));
-    });
-}
-
 function makeItem(title, url, id, isDone = false) {
     const makeButton = (icon, callback) => {
         const btn = makeElement(
@@ -175,7 +175,7 @@ function makeItem(title, url, id, isDone = false) {
 
     // deleting is common for both done and undone
     let buttons = [makeButton("delete", () => deleteBookmark(id))];
-    
+
     if (isDone) {
         // done bookmark only has undone option
         buttons = [makeButton("undo", () => undoneBookmark(id)), ...buttons];
@@ -201,7 +201,7 @@ function makeItem(title, url, id, isDone = false) {
                 "a",
                 "primary-content" + (isDone ? " done-bookmark" : ""), // done bookmarks are greyed out and italic
                 {
-                    title: title,
+                    title,
                     href: url,
                     target: "_blank",
                 },
