@@ -6,10 +6,12 @@ function retrieveMetaFromHtmlText(htmlText) {
 
     const dom = parser.parseFromString(htmlText, "text/html");
 
+    /* eslint-disable quotes */
     const description = defaultIfNull(
         dom.querySelector(`meta[property="og:description"]`)
     );
     const image = defaultIfNull(dom.querySelector(`meta[property="og:image"]`));
+    /* eslint-enable quotes */
 
     return {
         description,
@@ -22,5 +24,5 @@ function getMetaInfo(url, callback) {
         .then((res) => res.text())
         .then(retrieveMetaFromHtmlText)
         .then((info) => callback(info))
-        .catch((reason) => console.log(reason));
+        .catch((reason) => console.log(reason)); /* eslint-disable-line no-console */
 }

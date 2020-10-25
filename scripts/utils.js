@@ -5,10 +5,6 @@ function onClick(id, callback) {
     document.getElementById(id).addEventListener("click", () => callback());
 }
 
-function setHtml(id, html) {
-    document.getElementById(id).innerHTML = html;
-}
-
 function makeDbObj(obj) {
     return {
         bookmarkieDatabase: JSON.stringify({
