@@ -1,6 +1,6 @@
 /*global chrome, Sortable, M, makeDbObj, displayAllBookmarks, withStore, getShowHideElement, displayDoneBookmarks */
 
-/* eslint-disable-next-line no-unused-vars wrap-iife */
+/* eslint-disable-next-line wrap-iife */
 (function () {
     // display current undone bookmarks
     withStore((_, bookmarks) => {

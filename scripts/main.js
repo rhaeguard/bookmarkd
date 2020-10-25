@@ -1,103 +1,81 @@
-/*global setHtml, onClick, getShowHideElement, makeDbObj, withStore*/
+/*global makeElement, makeAnchor, getShowHideElement, makeDbObj, withStore*/
 /*exported displayCurrentUndoneBookmarks, displayAllBookmarks */
 
-function displayFeaturedBookmark(bookmark) {
-    const setHtml = (html) => {
-        document.getElementById("featured").innerHTML = html;
-    };
-
-    if (bookmark) {
-        const { id, title, description, url } = bookmark;
-        let html = `
-            <div class="col s12 m6">
-                <div class="card" id="featured-item" bookmarkId="${id}">
-                    <div class="card-content blue-text">
-                        <a class="card-title blue-text" href="${url}">${title}</a>
-                        <p>${description === null ? "" : description}</p>
-                    </div>
-                    <div class="card-action">
-                        <a href="${url}" class="dark-orange-text">Read more</a>
-                        <span style="float:right">
-                            <a href="#" id="markDone" class="dark-orange-text">Done</a>
-                            <a href="#" id="delete" class="dark-orange-text">Delete</a>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-        setHtml(html);
-
-        onClick("markDone", () => doneBookmark(id));
-        onClick("delete", () => deleteBookmark(id));
-    } else {
-        setHtml("");
-    }
-}
-
-function makeItem(title, url, id, isDone = false) {
-    /* 
-        <div class="collection">
-            <div class="collection-item customized">
-                <a href="#" class="primary-content">Title</a>
-                <div class="other-content">
-                    <i class="material-icons action-btn" bookmarkId="1"
-                        >done</i
-                    >
-                    <i class="material-icons action-btn" bookmarkId="1"
-                        >delete</i
-                    >
-                </div>
-            </div>
-        </div> 
-    */
-    const item = document.createElement("div");
-    item.className = "collection-item customized";
-    item.setAttribute("bookmarkId", id);
-
-    // title and link
-    const a = document.createElement("a");
-    a.appendChild(document.createTextNode(title));
-    a.title = title;
-    a.href = url;
-    a.className = "primary-content" + (isDone ? " done-bookmark" : ""); // done bookmarks are greyed out and italic
-    a.target = "_blank";
-    // title and link -- end
-
-    // other content
-    const oc = document.createElement("div");
-    oc.className = "other-content";
-    // other content -- end
-
-    // buttons -- start
-    const makeButton = (icon, callback) => {
-        const btn = document.createElement("i");
-        btn.appendChild(document.createTextNode(icon));
-        btn.className = "material-icons action-btn";
-        btn.setAttribute("bookmarkId", id);
-        btn.addEventListener("click", callback);
+function createFeaturedElement(id, title, description, url) {
+    const actionBtn = (text, btnId, callback) => {
+        const btn = makeAnchor("dark-orange-text", text, "#", btnId);
+        btn.addEventListener("click", () => callback(id));
         return btn;
     };
 
-    if (isDone) {
-        // done bookmark only has undone option
-        oc.appendChild(makeButton("undo", () => undoneBookmark(id)));
-    } else {
-        // undone bookmark has done and make featured options
-        oc.appendChild(makeButton("bookmark", () => makeBookmarkFeatured(id)));
-        oc.appendChild(makeButton("done", () => doneBookmark(id)));
+    return makeElement("div", "col s12 m6", {}, [
+        makeElement(
+            "div",
+            "card",
+            {
+                bookmarkId: id,
+                id: "featured-item",
+            },
+            [
+                makeElement("div", "card-content blue-text", {}, [
+                    makeAnchor("card-title blue-text", title, url),
+                    makeElement(
+                        "p",
+                        "card-description",
+                        {
+                            style: "font-style:italic",
+                        },
+                        [
+                            document.createTextNode(
+                                description === null ? "" : description
+                            ),
+                        ]
+                    ),
+                ]),
+                makeElement("div", "card-action", {}, [
+                    makeAnchor("dark-orange-text", "Read more", url),
+                    makeElement(
+                        "span",
+                        "action-buttons",
+                        {
+                            style: "float:right",
+                        },
+                        [
+                            actionBtn("Done", "markDone", doneBookmark),
+                            actionBtn("Delete", "delete", deleteBookmark),
+                        ]
+                    ),
+                ]),
+            ]
+        ),
+    ]);
+}
+
+const clearDiv = (divToClear) => {
+    const div = divToClear;
+    while (div.firstChild) {
+        div.removeChild(div.firstChild);
     }
-    // deleting is common for both done and undone
-    oc.appendChild(makeButton("delete", () => deleteBookmark(id)));
-    // buttons -- end
+};
 
-    item.appendChild(a);
-    item.appendChild(oc);
+function displayFeaturedBookmark(bookmark) {
+    const featuredDiv = () => document.getElementById("featured");
 
-    return item;
+    if (bookmark) {
+        const { id, title, description, url } = bookmark;
+
+        const featured = createFeaturedElement(id, title, description, url);
+
+        clearDiv(featuredDiv());
+        featuredDiv().appendChild(featured);
+    } else {
+        clearDiv(featuredDiv());
+    }
 }
 
 function displayBookmarks(items, divId = "items", isDone = false) {
     const collection = document.getElementById(divId);
-    collection.innerHTML = "";
+    clearDiv(collection);
     if (items.length > 0) {
         items.forEach(({ id, title, url }) => {
             collection.append(makeItem(title, url, id, isDone));
@@ -178,6 +156,60 @@ function makeBookmarkFeatured(id) {
         const newBookmarks = bookmarks.filter((x) => x.id !== id);
         store.set(makeDbObj([b, ...newBookmarks]));
     });
+}
+
+function makeItem(title, url, id, isDone = false) {
+    const makeButton = (icon, callback) => {
+        const btn = makeElement(
+            "i",
+            "material-icons action-btn",
+            {
+                bookmarkId: id,
+            },
+            [document.createTextNode(icon)]
+        );
+
+        btn.addEventListener("click", callback);
+        return btn;
+    };
+
+    // deleting is common for both done and undone
+    let buttons = [makeButton("delete", () => deleteBookmark(id))];
+    
+    if (isDone) {
+        // done bookmark only has undone option
+        buttons = [makeButton("undo", () => undoneBookmark(id)), ...buttons];
+    } else {
+        // undone bookmark has done and make featured options
+        buttons = [
+            makeButton("bookmark", () => makeBookmarkFeatured(id)),
+            makeButton("done", () => doneBookmark(id)),
+            ...buttons,
+        ];
+    }
+
+    // buttons -- end
+
+    return makeElement(
+        "div",
+        "collection-item customized",
+        {
+            bookmarkId: id,
+        },
+        [
+            makeElement(
+                "a",
+                "primary-content" + (isDone ? " done-bookmark" : ""), // done bookmarks are greyed out and italic
+                {
+                    title: title,
+                    href: url,
+                    target: "_blank",
+                },
+                [document.createTextNode(title)]
+            ),
+            makeElement("div", "other-content", {}, buttons),
+        ]
+    );
 }
 
 /**
