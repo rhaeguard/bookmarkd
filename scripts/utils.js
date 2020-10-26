@@ -29,7 +29,7 @@ function makeElement(type, classes, attributes = {}, children = []) {
         e.setAttribute(key, value);
     }
 
-    children.forEach((child) => e.appendChild(child))
+    children.forEach((child) => e.appendChild(child));
 
     return e;
 }
