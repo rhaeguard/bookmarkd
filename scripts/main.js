@@ -1,5 +1,6 @@
 /*global makeElement, makeAnchor, getShowHideElement, makeDbObj, withStore*/
 /*exported displayCurrentUndoneBookmarks, displayAllBookmarks */
+/*eslint-disable no-use-before-define*/
 
 function doneBookmark(id) {
     const updatDoneBookmarksIfVisible = () => {

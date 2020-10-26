@@ -1,6 +1,6 @@
 /*global chrome, Sortable, M, makeDbObj, displayAllBookmarks, withStore, getShowHideElement, displayDoneBookmarks */
+/* eslint-disable wrap-iife */
 
-/* eslint-disable-next-line wrap-iife */
 (function () {
     // display current undone bookmarks
     withStore((_, bookmarks) => {
@@ -8,7 +8,6 @@
     });
 })();
 
-/* eslint-disable-next-line wrap-iife */
 (function () {
     document.addEventListener("DOMContentLoaded", function () {
         var elems = document.querySelectorAll(".fixed-action-btn");
@@ -22,7 +21,7 @@
 })();
 
 (function () {
-    /* eslint-disable-next-line no-unused-vars */
+    /* eslint-disable no-unused-vars */
     const _ = new Sortable(document.getElementById("items"), {
         animation: 150,
         onEnd: () => {
@@ -52,6 +51,7 @@
             });
         },
     });
+    /* eslint-enable no-unused-vars */
 })();
 
 function registerShowHideButtonListener() {
