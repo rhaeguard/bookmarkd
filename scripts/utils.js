@@ -29,9 +29,7 @@ function makeElement(type, classes, attributes = {}, children = []) {
         e.setAttribute(key, value);
     }
 
-    for (let child of children) {
-        e.appendChild(child);
-    }
+    children.forEach((child) => e.appendChild(child))
 
     return e;
 }
