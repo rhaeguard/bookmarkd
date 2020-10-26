@@ -33,3 +33,8 @@ body {
 .dark-orange-text {
     color: #e57b1e !important;
 }
+
+.done-bookmark {
+    color: grey;
+    font-style: italic;
+}

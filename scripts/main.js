@@ -1,86 +1,144 @@
-/*global chrome, Sortable*/
+/*global makeElement, makeAnchor, getShowHideElement, makeDbObj, withStore*/
+/*exported displayCurrentUndoneBookmarks, displayAllBookmarks */
+/*eslint-disable no-use-before-define*/
 
-function makeDbObj(obj) {
-    return {
-        bookmarkieDatabase: JSON.stringify({
-            saved: obj,
-        }),
+function doneBookmark(id) {
+    const updatDoneBookmarksIfVisible = () => {
+        const showDone =
+            getShowHideElement().getAttribute("data-visibility") === "true";
+        if (showDone) {
+            displayDoneBookmarks();
+        }
     };
-}
 
-// eslint-disable-next-line no-unused-vars
-const _ = new Sortable(document.getElementById("items"), { 
-    animation: 150,
-    onEnd: () => {
-        let elements = document.getElementsByClassName("customized");
-
-        const ids = [...elements].map((e) => e.getAttribute("bookmarkId"));
-
-        const featuredId = document
-            .getElementById("featured-item")
-            .getAttribute("bookmarkId");
-
-        const store = chrome.storage.sync;
-        store.get(null, ({ bookmarkieDatabase }) => {
-            const allBookmarks = JSON.parse(bookmarkieDatabase).saved;
-
-            const onlyUndone = allBookmarks.filter((x) => !x.done);
-            const onlyDone = allBookmarks.filter((x) => x.done);
-
-            const featured = onlyUndone.find((x) => x.id === featuredId);
-            const others = onlyUndone.filter((x) => x.id !== featured);
-
-            const newBookmarks = ids.map((id) =>
-                others.find((x) => x.id === id)
-            );
-
-            store.set(makeDbObj([featured, ...newBookmarks, ...onlyDone]));
+    withStore((store, bookmarks) => {
+        for (let b of bookmarks) {
+            if (b.id === id) {
+                b.done = true;
+            }
+        }
+        store.set(makeDbObj(bookmarks), () => {
+            updatDoneBookmarksIfVisible();
         });
-    },
-});
-
-function onClick(id, callback) {
-    document.getElementById(id).addEventListener("click", () => callback());
+    });
 }
 
-function setHtml(id, html) {
-    document.getElementById(id).innerHTML = html;
+function displayDoneBookmarks() {
+    withStore((_, bookmarks) => {
+        const onlyDone = bookmarks.filter((x) => x.done);
+        displayBookmarks(onlyDone, "doneItems", true);
+        document.getElementById("doneItems").className = "collection";
+        getShowHideElement().setAttribute("data-visibility", "true");
+    });
 }
 
-function displayFeatured(bookmark) {
+function undoneBookmark(id) {
+    withStore((store, bookmarks) => {
+        for (let b of bookmarks) {
+            if (b.id === id) {
+                b.done = false;
+            }
+        }
+        const undoneBookmark = bookmarks.find((x) => x.id === id);
+        const withoutUndone = bookmarks.filter((x) => x.id !== id);
+        store.set(makeDbObj([...withoutUndone, undoneBookmark]), () => {
+            displayDoneBookmarks();
+        });
+    });
+}
+
+function deleteBookmark(id) {
+    withStore((store, bookmarks) => {
+        store.set(makeDbObj(bookmarks.filter((x) => x.id !== id)));
+    });
+}
+
+function makeBookmarkFeatured(id) {
+    withStore((store, bookmarks) => {
+        const b = bookmarks.find((x) => x.id === id && !x.done);
+        const newBookmarks = bookmarks.filter((x) => x.id !== id);
+        store.set(makeDbObj([b, ...newBookmarks]));
+    });
+}
+
+function createFeaturedElement(id, title, description, url) {
+    const actionBtn = (text, btnId, callback) => {
+        const btn = makeAnchor("dark-orange-text", text, "#", btnId);
+        btn.addEventListener("click", () => callback(id));
+        return btn;
+    };
+
+    return makeElement("div", "col s12 m6", {}, [
+        makeElement(
+            "div",
+            "card",
+            {
+                bookmarkId: id,
+                id: "featured-item",
+            },
+            [
+                makeElement("div", "card-content blue-text", {}, [
+                    makeAnchor("card-title blue-text", title, url),
+                    makeElement(
+                        "p",
+                        "card-description",
+                        {
+                            style: "font-style:italic",
+                        },
+                        [
+                            document.createTextNode(
+                                description === null ? "" : description
+                            ),
+                        ]
+                    ),
+                ]),
+                makeElement("div", "card-action", {}, [
+                    makeAnchor("dark-orange-text", "Read more", url),
+                    makeElement(
+                        "span",
+                        "action-buttons",
+                        {
+                            style: "float:right",
+                        },
+                        [
+                            actionBtn("Done", "markDone", doneBookmark),
+                            actionBtn("Delete", "delete", deleteBookmark),
+                        ]
+                    ),
+                ]),
+            ]
+        ),
+    ]);
+}
+
+const clearDiv = (divToClear) => {
+    const div = divToClear;
+    while (div.firstChild) {
+        div.removeChild(div.firstChild);
+    }
+};
+
+function displayFeaturedBookmark(bookmark) {
+    const featuredDiv = () => document.getElementById("featured");
+
     if (bookmark) {
-        const { id, title, description, url, image } = bookmark;
-        let html = `
-            <div class="col s12 m6">
-                <div class="card" id="featured-item" bookmarkId="${id}">
-                    <div class="card-content blue-text">
-                        <a class="card-title blue-text" href="${url}">${title}</a>
-                        <p>${description === null ? "" : description}</p>
-                    </div>
-                    <div class="card-action">
-                        <a href="${url}" class="dark-orange-text">Read more</a>
-                        <span style="float:right">
-                            <a href="#" id="markDone" class="dark-orange-text">Done</a>
-                            <a href="#" id="delete" class="dark-orange-text">Delete</a>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-        setHtml("featured", html);
+        const { id, title, description, url } = bookmark;
 
-        onClick("markDone", () => doneBookmark(id));
-        onClick("delete", () => deleteBookmark(id));
+        const featured = createFeaturedElement(id, title, description, url);
+
+        clearDiv(featuredDiv());
+        featuredDiv().appendChild(featured);
     } else {
-        setHtml("featured", "");
+        clearDiv(featuredDiv());
     }
 }
 
-function displayItems(items) {
-    const collection = document.getElementById("items");
-    collection.innerHTML = "";
+function displayBookmarks(items, divId = "items", isDone = false) {
+    const collection = document.getElementById(divId);
+    clearDiv(collection);
     if (items.length > 0) {
         items.forEach(({ id, title, url }) => {
-            collection.append(makeItem(title, url, id));
+            collection.append(makeItem(title, url, id, isDone));
         });
     } else {
         const noBookmarks = document.createElement("p");
@@ -90,124 +148,69 @@ function displayItems(items) {
     }
 }
 
-function doDisplayAllItems(items) {
+function displayAllBookmarks(items) {
     if (items) {
-        const filtered = items.filter((b) => !b.done);
+        const filtered = items.filter((b) => b != null).filter((b) => !b.done);
         const [first, ...others] = filtered;
-        displayFeatured(first);
+        displayFeaturedBookmark(first);
         if (others.length >= 0) {
-            displayItems(others);
+            displayBookmarks(others);
         }
     }
 }
 
-chrome.storage.onChanged.addListener((changes, areaName) => {
-    if (["local", "sync"].includes(areaName)) {
-        const dbStr = changes.bookmarkieDatabase.newValue;
-        if (dbStr) {
-            const db = JSON.parse(dbStr);
-            doDisplayAllItems(db.saved);
-        } else {
-            doDisplayAllItems([]);
-        }
-    }
-});
-
-chrome.storage.sync.get(["bookmarkieDatabase"], ({ bookmarkieDatabase }) => {
-    if (bookmarkieDatabase) {
-        const db = JSON.parse(bookmarkieDatabase);
-        const saved = db.saved;
-        doDisplayAllItems(saved);
-    }
-});
-
-function doneBookmark(id) {
-    const store = chrome.storage.sync;
-    store.get(null, ({ bookmarkieDatabase }) => {
-        const bookmarks = JSON.parse(bookmarkieDatabase).saved;
-        for (let b of bookmarks) {
-            if (b.id === id) {
-                b.done = true;
-            }
-        }
-
-        store.set(makeDbObj(bookmarks));
-    });
-}
-
-function deleteBookmark(id) {
-    const store = chrome.storage.sync;
-    store.get(null, ({ bookmarkieDatabase }) => {
-        const bookmarks = JSON.parse(bookmarkieDatabase).saved;
-        store.set(makeDbObj(bookmarks.filter((x) => x.id !== id)));
-    });
-}
-
-function doMakeFeatured(id) {
-    const store = chrome.storage.sync;
-    store.get(null, ({ bookmarkieDatabase }) => {
-        const oldBookmarks = JSON.parse(bookmarkieDatabase).saved;
-        const b = oldBookmarks.find((x) => x.id === id && !x.done);
-        const newBookmarks = oldBookmarks.filter((x) => x.id !== id);
-        store.set(makeDbObj([b, ...newBookmarks]));
-    });
-}
-
-function makeItem(title, url, id) {
-    /* <div class="collection">
-            <div class="collection-item customized">
-                <a href="#" class="primary-content">Title</a>
-                <div class="other-content">
-                    <i class="material-icons action-btn" bookmarkId="1"
-                        >done</i
-                    >
-                    <i class="material-icons action-btn" bookmarkId="1"
-                        >delete</i
-                    >
-                </div>
-            </div>
-        </div> */
-    const item = document.createElement("div");
-    item.className = "collection-item customized";
-    item.setAttribute("bookmarkId", id);
-
-    // title and link
-    const a = document.createElement("a");
-    a.appendChild(document.createTextNode(title));
-    a.title = title;
-    a.href = url;
-    a.className = "primary-content";
-    a.target = "_blank";
-    // title and link -- end
-
-    // other content
-    const oc = document.createElement("div");
-    oc.className = "other-content";
-    // other content -- end
-
-    // buttons -- start
+function makeItem(title, url, id, isDone = false) {
     const makeButton = (icon, callback) => {
-        const btn = document.createElement("i");
-        btn.appendChild(document.createTextNode(icon));
-        btn.className = "material-icons action-btn";
-        btn.setAttribute("bookmarkId", id);
+        const btn = makeElement(
+            "i",
+            "material-icons action-btn",
+            {
+                bookmarkId: id,
+            },
+            [document.createTextNode(icon)]
+        );
+
         btn.addEventListener("click", callback);
         return btn;
     };
 
-    const btnMakeFeatured = makeButton("bookmark", () => doMakeFeatured(id));
-    const btnDone = makeButton("done", () => doneBookmark(id));
-    const btnDeleteBtn = makeButton("delete", () => deleteBookmark(id));
+    // deleting is common for both done and undone
+    let buttons = [makeButton("delete", () => deleteBookmark(id))];
 
-    oc.appendChild(btnMakeFeatured);
-    oc.appendChild(btnDone);
-    oc.appendChild(btnDeleteBtn);
+    if (isDone) {
+        // done bookmark only has undone option
+        buttons = [makeButton("undo", () => undoneBookmark(id)), ...buttons];
+    } else {
+        // undone bookmark has done and make featured options
+        buttons = [
+            makeButton("bookmark", () => makeBookmarkFeatured(id)),
+            makeButton("done", () => doneBookmark(id)),
+            ...buttons,
+        ];
+    }
+
     // buttons -- end
 
-    item.appendChild(a);
-    item.appendChild(oc);
-
-    return item;
+    return makeElement(
+        "div",
+        "collection-item customized",
+        {
+            bookmarkId: id,
+        },
+        [
+            makeElement(
+                "a",
+                "primary-content" + (isDone ? " done-bookmark" : ""), // done bookmarks are greyed out and italic
+                {
+                    title,
+                    href: url,
+                    target: "_blank",
+                },
+                [document.createTextNode(title)]
+            ),
+            makeElement("div", "other-content", {}, buttons),
+        ]
+    );
 }
 
 /**

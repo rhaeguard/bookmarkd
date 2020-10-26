@@ -1,22 +1,14 @@
-/*global chrome, getMetaInfo*/
+/*global chrome, uuidv4, getMetaInfo*/
 
 function doesNotContain(items, { title, url }) {
     return !items.some((x) => title === x.title && url === x.url && !x.done);
 }
 
-function id() {
-    const min = 10000000;
-    const max = 99999999;
-    return (Math.floor(Math.random() * (max - min + 1)) + min).toString();
-}
-
-function makeDbObj(obj) {
-    return {
-        bookmarkieDatabase: JSON.stringify(obj),
-    };
-}
-
 function handleDbObj(currentValueString, bookmark) {
+    const makeDbObj = (obj) => {
+        return { bookmarkieDatabase: JSON.stringify(obj) };
+    };
+
     if (currentValueString) {
         const db = JSON.parse(currentValueString);
         if (doesNotContain(db.saved, bookmark)) {
@@ -35,7 +27,7 @@ chrome.browserAction.onClicked.addListener(({ title, url }) => {
         getMetaInfo(url, ({ image, description }) => {
             store.set(
                 handleDbObj(bookmarkieDatabase, {
-                    id: id(),
+                    id: uuidv4(),
                     title,
                     url,
                     image,
