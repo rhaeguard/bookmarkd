@@ -21,7 +21,7 @@
 })();
 
 (function () {
-    /* eslint-disable no-unused-vars */
+    //jshint unused:false
     const _ = new Sortable(document.getElementById("items"), {
         animation: 150,
         onEnd: () => {
