@@ -1,0 +1,45 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+}
+
+.customized {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.primary-content {
+  flex: 10;
+}
+
+.other-content {
+  flex: 1.5;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.action-btn:hover {
+  cursor: pointer;
+}
+
+.featured-item {
+  border: 1px solid #1e88e5;
+  box-sizing: border-box;
+  box-shadow: unset !important;
+}
+
+.dark-orange-text {
+  color: #e57b1e !important;
+}
+
+.done-bookmark {
+  color: grey;
+  font-style: italic;
+}
+
+.app-title {
+  font-family: "Bungee Shade", cursive;
+  color: #1e88e5;
+}
