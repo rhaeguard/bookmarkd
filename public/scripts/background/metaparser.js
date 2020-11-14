@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable no-unused-vars */
 /* exported getMetaInfo */
 const parser = new DOMParser();
 
@@ -8,7 +10,7 @@ function retrieveMetaFromHtmlText(htmlText) {
 
     /* eslint-disable quotes */
     const description = defaultIfNull(
-        dom.querySelector(`meta[property="og:description"]`)
+        dom.querySelector(`meta[property="og:description"]`),
     );
     const image = defaultIfNull(dom.querySelector(`meta[property="og:image"]`));
     /* eslint-enable quotes */
@@ -24,5 +26,5 @@ function getMetaInfo(url, callback) {
         .then((res) => res.text())
         .then(retrieveMetaFromHtmlText)
         .then((info) => callback(info))
-        .catch((reason) => console.log(reason)); /* eslint-disable-line no-console */
+        .catch((reason) => console.log(reason));
 }

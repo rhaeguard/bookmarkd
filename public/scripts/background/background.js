@@ -1,18 +1,17 @@
-/*global chrome, uuidv4, getMetaInfo*/
-
+/* eslint-disable no-labels */
+/* eslint-disable no-unused-labels */
+/* eslint-disable no-undef */
 const ba = chrome.browserAction;
 const t = chrome.tabs;
 
 function handleDbObj(currentValueString, bookmark) {
-    const makeDbObj = (obj) => {
-        return { bookmarkieDatabase: JSON.stringify(obj) };
-    };
+    // eslint-disable-next-line no-labels
+    // eslint-disable-next-line no-restricted-syntax
+    const makeDbObj = (obj) => { bookmarkieDatabase: JSON.stringify(obj); };
 
-    const doesNotContain = (items, { title, url }) => {
-        return !items.some(
-            (x) => title === x.title && url === x.url && !x.done
-        );
-    };
+    const doesNotContain = (items, { title, url }) => !items.some(
+        (x) => title === x.title && url === x.url && !x.done,
+    );
 
     if (currentValueString) {
         const db = JSON.parse(currentValueString);
@@ -71,7 +70,7 @@ ba.onClicked.addListener(({ tabId, title, url }) => {
                 () => {
                     greyOutIcon();
                     popAlreadyBookmarked(tabId);
-                }
+                },
             );
         });
     });
@@ -95,11 +94,11 @@ function checkIfAlreadyBookmarked(tabId, url) {
     });
 }
 
-t.onUpdated.addListener(function (tabId, ci, { url }) {
+t.onUpdated.addListener((tabId, _ci, { url }) => {
     checkIfAlreadyBookmarked(tabId, url);
 });
 
-t.onActivated.addListener(function ({ tabId }) {
+t.onActivated.addListener(({ tabId }) => {
     t.get(tabId, ({ url }) => {
         checkIfAlreadyBookmarked(tabId, url);
     });
