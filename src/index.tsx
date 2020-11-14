@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import BookmarkdApplication from './BookmarkdApplication';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <BookmarkdApplication />
   </React.StrictMode>,
   document.getElementById('root')
 );

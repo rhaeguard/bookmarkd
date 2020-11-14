@@ -19,6 +19,17 @@ export function markAsDone(bookmarkId: string, callback: () => void) {
     });
 }
 
+export function markAsUndone(bookmarkId: string, callback: () => void) {
+    withStore((store, bookmarks) => {
+        for (let b of bookmarks) {
+            if (b.id === bookmarkId) {
+                b.done = false;
+            }
+        }
+        store.set(makeDbObj(bookmarks), callback);
+    });
+}
+
 export function deleteBookmark(bookmarkId: string, callback: () => void) {
     withStore((store, bookmarks) => {
         store.set(

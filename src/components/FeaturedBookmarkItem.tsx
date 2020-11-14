@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Icon } from "react-materialize";
+import { Card } from "react-materialize";
 import { deleteBookmark, markAsDone } from "../ChromeInterations";
 
 export function FeaturedBookmarkItem(props: {
@@ -12,7 +12,7 @@ export function FeaturedBookmarkItem(props: {
     onDeleteSuccess: () => void,
 }) {
     return (
-        <div id="featured">
+        <div>
             <div className="col s12 m6">
                 <Card
                     actions={[
@@ -51,8 +51,6 @@ export function FeaturedBookmarkItem(props: {
                     className="featured-item"
                     textClassName="blue-text"
                     title={props.title}
-                    closeIcon={<Icon key="dhasbdhjasbdaj">close</Icon>} // todo: should delete this
-                    revealIcon={<Icon key="dasdasda">more_vert</Icon>} // todo: should delete this
                 >
                     <p
                         className="card-description"
