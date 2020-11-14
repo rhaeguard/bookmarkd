@@ -1,68 +1,74 @@
+/* eslint-disable import/no-unresolved */
+/* eslint-disable import/extensions */
+/* eslint-disable no-undef */
+/* eslint-disable react/jsx-props-no-spreading */
 import "./BookmarkdApplication.css";
 import "materialize-css/dist/css/materialize.min.css";
 import "materialize-css";
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from "react";
 import { Collection } from "react-materialize";
+import { ReactSortable } from "react-sortablejs";
+import { Fab, Action } from "react-tiny-fab";
 import BookmarkItem from "./components/BookmarkItem";
 import { Bookmarked, makeDbObj, parseNow } from "./Utils";
-import { FeaturedBookmarkItem } from "./components/FeaturedBookmarkItem";
-import { ReactSortable } from "react-sortablejs";
+import FeaturedBookmarkItem from "./components/FeaturedBookmarkItem";
 import DoneBookmarkItem from "./components/DoneBookmarkItem";
-import { Fab, Action } from "react-tiny-fab";
 
-const NoBookmarks = () => (<p className="center">no bookmarks</p>)
+function NoBookmarks() {
+    return (<p className="center">no bookmarks</p>);
+}
 
 export default function BookmarkdApplication() {
-
     const [bookmarks, setBookmarks] = useState<Bookmarked[]>([]);
     const [doneBookmarks, setDoneBookmarks] = useState<Bookmarked[]>([]);
     const [featured, setFeatured] = useState<Bookmarked | undefined>(undefined);
     const [noBookmarks, setNoBookmarks] = useState<boolean>(true);
     const [hideDoneBookmarks, setHideDoneBookmarks] = useState<boolean>(true);
 
-    function refreshItems() {
-        chrome.storage.sync.get(({ bookmarkieDatabase }) => {
-            displayItems(bookmarkieDatabase)
-        })
-    }
-
     function displayItems(bookmarkieDatabase: string) {
-        let noBookmarks: boolean;
+        let noBookmarksFlag: boolean;
         if (bookmarkieDatabase) {
-            const { saved } = parseNow(bookmarkieDatabase)
-            noBookmarks = saved.length === 0;
-            if (!noBookmarks) {
-                const [featuredBookmark, ...rest] = saved.filter(b => !b.done);
+            const { saved } = parseNow(bookmarkieDatabase);
+            noBookmarksFlag = saved.length === 0;
+            if (!noBookmarksFlag) {
+                const [featuredBookmark, ...rest] = saved.filter((b) => !b.done);
                 setFeatured(featuredBookmark);
                 setBookmarks(rest);
 
-                setDoneBookmarks(saved.filter(b => b.done));
+                setDoneBookmarks(saved.filter((b) => b.done));
             }
         } else {
-            noBookmarks = true;
+            noBookmarksFlag = true;
         }
-        setNoBookmarks(noBookmarks)
+        setNoBookmarks(noBookmarksFlag);
     }
 
-    useEffect(refreshItems, [])
+    function refreshItems() {
+        chrome.storage.sync.get(({ bookmarkieDatabase }) => {
+            displayItems(bookmarkieDatabase);
+        });
+    }
 
-    useEffect(() => {
+    function registerOnStorageChanged() {
         chrome.storage.onChanged.addListener((changes, areaName) => {
             if (["local", "sync"].includes(areaName)) {
                 const dbStr = changes.bookmarkieDatabase.newValue;
-                displayItems(dbStr)
+                displayItems(dbStr);
             }
-        })
-    }, [])
+        });
+    }
 
-    function rearrange(newOrderBookmarks: Bookmarked[], featured: Bookmarked) {
+    useEffect(refreshItems, []);
+    useEffect(registerOnStorageChanged, []);
+
+    function rearrange(newOrderBookmarks: Bookmarked[], featuredBookmark: Bookmarked) {
         if (newOrderBookmarks.length === 0) return;
 
         // get the current order of ids
         const ids = [...newOrderBookmarks].map((e) => e.id);
 
         // featured won't be affected, it will be the first anyway
-        const featuredId = featured.id;
+        const featuredId = featuredBookmark.id;
 
         chrome.storage.sync.get(null, ({ bookmarkieDatabase }) => {
             // logic is as follows:
@@ -75,93 +81,95 @@ export default function BookmarkdApplication() {
             const onlyUndone = allBookmarks.filter((x) => !x.done);
             const onlyDone = allBookmarks.filter((x) => x.done);
 
-            const featured = onlyUndone.find((x) => x.id === featuredId)!; // todo: bad
+            const featuredItem = onlyUndone.find((x) => x.id === featuredId)!; // todo: bad
             const others = onlyUndone.filter((x) => x.id !== featuredId);
 
-            const newBookmarks: Bookmarked[] = ids.map((id) =>
-                others.find((x) => x.id === id)! // todo: bad
-            );
+            const newBookmarks: Bookmarked[] = ids.map(
+                (id) => others.find((x) => x.id === id)!,
+            ); // todo: bad;
 
-            const arr: Bookmarked[] = [featured, ...newBookmarks, ...onlyDone];
+            const arr: Bookmarked[] = [featuredItem, ...newBookmarks, ...onlyDone];
 
             chrome.storage.sync.set(makeDbObj(arr));
         });
     }
 
-    function renderBodyItems(featured: Bookmarked, bookmarks: Bookmarked[]) {
+    function renderBodyItems(featuredBookmark: Bookmarked, bookmarksCollection: Bookmarked[]) {
         return (
-            <ReactSortable list={bookmarks} setList={setBookmarks} onEnd={() => {
-                rearrange(bookmarks, featured!);
-            }}>
-                {bookmarks.map((b) => {
-                    return (
-                        <BookmarkItem {...b}
-                            onDoneSuccess={refreshItems}
-                            onDeleteSuccess={refreshItems}
-                        />
-                    )
-                })}
+            <ReactSortable
+                list={bookmarksCollection}
+                setList={setBookmarks}
+                onEnd={() => {
+                    rearrange(bookmarksCollection, featuredBookmark!);
+                }}
+            >
+                {bookmarksCollection.map((b) => (
+                    <BookmarkItem
+                        {...b}
+                        onDoneSuccess={refreshItems}
+                        onDeleteSuccess={refreshItems}
+                    />
+                ))}
             </ReactSortable>
-        )
+        );
     }
 
     const renderUndoneBookmarks = () => {
         if (noBookmarks || !featured) {
-            return <NoBookmarks />
-        } else {
-            return (
-                <React.Fragment>
-                    <FeaturedBookmarkItem {...featured!}
-                        onDoneSuccess={refreshItems}
-                        onDeleteSuccess={refreshItems} />
-                    <Collection >
-                        {
-                            bookmarks.length === 0
-                                ? <NoBookmarks />
-                                : renderBodyItems(featured!, bookmarks)
-                        }
-                    </Collection>
-                </React.Fragment>
-            )
+            return <NoBookmarks />;
         }
-    }
+        return (
+            <>
+                <FeaturedBookmarkItem
+                    {...featured!}
+                    onDoneSuccess={refreshItems}
+                    onDeleteSuccess={refreshItems}
+                />
+                <Collection>
+                    {
+                        bookmarks.length === 0
+                            ? <NoBookmarks />
+                            : renderBodyItems(featured!, bookmarks)
+                    }
+                </Collection>
+            </>
+        );
+    };
 
-    const renderDoneBookmarks = () => {
-        return hideDoneBookmarks ? null : (
-            <Collection>
-                {
-                    doneBookmarks.map(b => {
-                        return (<DoneBookmarkItem {...b}
-                            onUndoneSuccess={refreshItems}
-                            onDeleteSuccess={refreshItems} />)
-                    })
-                }
-            </Collection>
-        )
-    }
+    const renderDoneBookmarks = () => (hideDoneBookmarks ? null : (
+        <Collection>
+            {
+                doneBookmarks.map((b) => (
+                    <DoneBookmarkItem
+                        {...b}
+                        onUndoneSuccess={refreshItems}
+                        onDeleteSuccess={refreshItems}
+                    />
+                ))
+            }
+        </Collection>
+    ));
 
     const renderFloatingToolbar = () => {
         const style = {
-            backgroundColor: "#e57b1e"
+            backgroundColor: "#e57b1e",
         };
         return (
             <Fab
                 mainButtonStyles={style}
                 icon={<i className="material-icons">help_outline</i>}
-                alwaysShowTitle={true}
+                alwaysShowTitle
             >
                 <Action
                     style={style}
                     text={hideDoneBookmarks ? "Show done bookmarks" : "Hide done bookmarks"}
-                    onClick={() => {
-                        setHideDoneBookmarks(!hideDoneBookmarks)
-                    }}
+                    onClick={() => { setHideDoneBookmarks(!hideDoneBookmarks); }}
                 >
                     <i className="material-icons">history</i>
                 </Action>
             </Fab>
-        )
-    }
+        );
+    };
 
     return (
         <div className="app">

@@ -1,28 +1,33 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable import/no-unresolved */
+/* eslint-disable import/extensions */
 import React from "react";
 import { Card } from "react-materialize";
 import { deleteBookmark, markAsDone } from "../ChromeInterations";
 
-export function FeaturedBookmarkItem(props: {
+export default function FeaturedBookmarkItem(props: {
     id: string,
     title: string,
     url: string,
-    done: boolean,
     description: string,
     onDoneSuccess: () => void,
     onDeleteSuccess: () => void,
 }) {
+    const {
+        id, title, url, description, onDoneSuccess, onDeleteSuccess,
+    } = props;
     return (
         <div>
             <div className="col s12 m6">
                 <Card
                     actions={[
                         <a
-                            href={props.url}
+                            href={url}
                             className="dark-orange-text"
                             key="featured-read-more"
                         >
                             Read more
-                                </a>,
+                        </a>,
                         <span
                             className="action-buttons"
                             style={{
@@ -34,23 +39,23 @@ export function FeaturedBookmarkItem(props: {
                                 href="#"
                                 className="dark-orange-text"
                                 key="featured-done"
-                                onClick={() => { markAsDone(props.id, props.onDoneSuccess) }}
+                                onClick={() => { markAsDone(id, onDoneSuccess); }}
                             >
                                 Done
-                                    </a>
+                            </a>
                             <a
                                 href="#"
                                 className="dark-orange-text"
                                 key="featured-delete"
-                                onClick={() => { deleteBookmark(props.id, props.onDeleteSuccess) }}
+                                onClick={() => { deleteBookmark(id, onDeleteSuccess); }}
                             >
                                 Delete
-                                    </a>
+                            </a>
                         </span>,
                     ]}
                     className="featured-item"
                     textClassName="blue-text"
-                    title={props.title}
+                    title={title}
                 >
                     <p
                         className="card-description"
@@ -58,10 +63,10 @@ export function FeaturedBookmarkItem(props: {
                             fontStyle: "italic",
                         }}
                     >
-                        {props.description}
+                        {description}
                     </p>
                 </Card>
             </div>
         </div>
-    )
+    );
 }

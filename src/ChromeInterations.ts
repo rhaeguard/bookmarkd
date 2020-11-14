@@ -1,3 +1,5 @@
+/* eslint-disable import/no-unresolved */
+/* eslint-disable import/extensions */
 import { withStore, makeDbObj } from "./Utils";
 
 export function markAsFeatured(bookmarkId: string) {
@@ -10,23 +12,21 @@ export function markAsFeatured(bookmarkId: string) {
 
 export function markAsDone(bookmarkId: string, callback: () => void) {
     withStore((store, bookmarks) => {
-        for (let b of bookmarks) {
-            if (b.id === bookmarkId) {
-                b.done = true;
-            }
+        const bk = bookmarks.find((x) => x.id === bookmarkId);
+        if (bk) {
+            bk.done = true;
+            store.set(makeDbObj(bookmarks), callback);
         }
-        store.set(makeDbObj(bookmarks), callback);
     });
 }
 
 export function markAsUndone(bookmarkId: string, callback: () => void) {
     withStore((store, bookmarks) => {
-        for (let b of bookmarks) {
-            if (b.id === bookmarkId) {
-                b.done = false;
-            }
+        const bk = bookmarks.find((x) => x.id === bookmarkId);
+        if (bk) {
+            bk.done = false;
+            store.set(makeDbObj(bookmarks), callback);
         }
-        store.set(makeDbObj(bookmarks), callback);
     });
 }
 
@@ -34,7 +34,7 @@ export function deleteBookmark(bookmarkId: string, callback: () => void) {
     withStore((store, bookmarks) => {
         store.set(
             makeDbObj(bookmarks.filter((x) => x.id !== bookmarkId)),
-            callback
+            callback,
         );
     });
 }
