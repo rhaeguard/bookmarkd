@@ -7,11 +7,13 @@ const t = chrome.tabs;
 function handleDbObj(currentValueString, bookmark) {
     // eslint-disable-next-line no-labels
     // eslint-disable-next-line no-restricted-syntax
-    const makeDbObj = (obj) => { bookmarkieDatabase: JSON.stringify(obj); };
+    const makeDbObj = (obj) => ({
+        bookmarkieDatabase: JSON.stringify(obj),
+    });
 
-    const doesNotContain = (items, { title, url }) => !items.some(
-        (x) => title === x.title && url === x.url && !x.done,
-    );
+    const doesNotContain = (items, { title, url }) =>
+        // eslint-disable-next-line implicit-arrow-linebreak
+        !items.some((x) => title === x.title && url === x.url && !x.done);
 
     if (currentValueString) {
         const db = JSON.parse(currentValueString);
