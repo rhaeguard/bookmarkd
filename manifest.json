@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "Bookmarked!",
     "author": "Mensur Owary",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Google Chrome extension that allows you to have a todo list of the websites you would like to visit",
     "chrome_url_overrides": {
         "newtab": "index.html"
