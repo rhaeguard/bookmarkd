@@ -18,6 +18,7 @@ module.exports = {
         // note you must disable the base rule as it can report incorrect errors
         "no-use-before-define": "off",
         "@typescript-eslint/no-use-before-define": ["error"],
+        "linebreak-style": "off",
         // Indent with 4 spaces
         indent: ["error", 4],
 

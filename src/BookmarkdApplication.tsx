@@ -14,9 +14,7 @@ import { Bookmarked, makeDbObj, parseNow } from "./Utils";
 import FeaturedBookmarkItem from "./components/FeaturedBookmarkItem";
 import DoneBookmarkItem from "./components/DoneBookmarkItem";
 
-function NoBookmarks() {
-    return (<p className="center">no bookmarks</p>);
-}
+const NoBookmarks = () => (<p className="center">no bookmarks</p>);
 
 export default function BookmarkdApplication() {
     const [bookmarks, setBookmarks] = useState<Bookmarked[]>([]);
@@ -24,6 +22,8 @@ export default function BookmarkdApplication() {
     const [featured, setFeatured] = useState<Bookmarked | undefined>(undefined);
     const [noBookmarks, setNoBookmarks] = useState<boolean>(true);
     const [hideDoneBookmarks, setHideDoneBookmarks] = useState<boolean>(true);
+
+    const storage = chrome.storage.local;
 
     function displayItems(bookmarkieDatabase: string) {
         let noBookmarksFlag: boolean;
@@ -44,7 +44,7 @@ export default function BookmarkdApplication() {
     }
 
     function refreshItems() {
-        chrome.storage.sync.get(({ bookmarkieDatabase }) => {
+        storage.get(({ bookmarkieDatabase }) => {
             displayItems(bookmarkieDatabase);
         });
     }
@@ -70,7 +70,7 @@ export default function BookmarkdApplication() {
         // featured won't be affected, it will be the first anyway
         const featuredId = featuredBookmark.id;
 
-        chrome.storage.sync.get(null, ({ bookmarkieDatabase }) => {
+        storage.get(null, ({ bookmarkieDatabase }) => {
             // logic is as follows:
             // separate done, undone and featured from all
             // put in the order: featured, undone, done
@@ -90,29 +90,27 @@ export default function BookmarkdApplication() {
 
             const arr: Bookmarked[] = [featuredItem, ...newBookmarks, ...onlyDone];
 
-            chrome.storage.sync.set(makeDbObj(arr));
+            storage.set(makeDbObj(arr));
         });
     }
 
-    function renderBodyItems(featuredBookmark: Bookmarked, bookmarksCollection: Bookmarked[]) {
-        return (
-            <ReactSortable
-                list={bookmarksCollection}
-                setList={setBookmarks}
-                onEnd={() => {
-                    rearrange(bookmarksCollection, featuredBookmark!);
-                }}
-            >
-                {bookmarksCollection.map((b) => (
-                    <BookmarkItem
-                        {...b}
-                        onDoneSuccess={refreshItems}
-                        onDeleteSuccess={refreshItems}
-                    />
-                ))}
-            </ReactSortable>
-        );
-    }
+    const renderBodyItems = (featuredBookmark: Bookmarked, bookmarksCollection: Bookmarked[]) => (
+        <ReactSortable
+            list={bookmarksCollection}
+            setList={setBookmarks}
+            onEnd={() => {
+                rearrange(bookmarksCollection, featuredBookmark!);
+            }}
+        >
+            {bookmarksCollection.map((b) => (
+                <BookmarkItem
+                    {...b}
+                    onDoneSuccess={refreshItems}
+                    onDeleteSuccess={refreshItems}
+                />
+            ))}
+        </ReactSortable>
+    );
 
     const renderUndoneBookmarks = () => {
         if (noBookmarks || !featured) {
@@ -151,9 +149,7 @@ export default function BookmarkdApplication() {
     ));
 
     const renderFloatingToolbar = () => {
-        const style = {
-            backgroundColor: "#e57b1e",
-        };
+        const style = { backgroundColor: "#e57b1e" };
         return (
             <Fab
                 mainButtonStyles={style}

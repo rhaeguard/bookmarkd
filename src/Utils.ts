@@ -8,16 +8,6 @@ export function makeDbObj(obj: Bookmarked[]): BookmarkedDbObject {
     };
 }
 
-type WithStoreCallback = (store: chrome.storage.StorageArea, bookmarks: Bookmarked[]) => void
-
-export function withStore(callback: WithStoreCallback) {
-    const store = chrome.storage.sync;
-    store.get(["bookmarkieDatabase"], ({ bookmarkieDatabase }) => {
-        const bookmarks: Bookmarked[] = JSON.parse(bookmarkieDatabase).saved;
-        callback(store, bookmarks);
-    });
-}
-
 export function parseNow(input: string): {
     saved: Bookmarked[]
 } {

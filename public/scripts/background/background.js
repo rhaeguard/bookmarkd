@@ -51,7 +51,7 @@ function popAlreadyBookmarked(tabId) {
 }
 
 function withStore(callback) {
-    const store = chrome.storage.sync;
+    const store = chrome.storage.local;
     store.get(["bookmarkieDatabase"], ({ bookmarkieDatabase }) => {
         callback(store, bookmarkieDatabase);
     });

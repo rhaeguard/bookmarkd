@@ -5,20 +5,7 @@ import "materialize-css";
 import React from "react";
 import { CollectionItem } from "react-materialize";
 import { deleteBookmark, markAsUndone } from "../ChromeInterations";
-
-function actionBtn(icon: string, doOnClick: () => void) {
-    return (
-        <i
-            role="button"
-            tabIndex={0}
-            className="material-icons action-btn"
-            onClick={doOnClick}
-            onKeyDown={doOnClick}
-        >
-            {icon}
-        </i>
-    );
-}
+import ActionBtn from "./ActionBtn";
 
 export default function DoneBookmarkItem(props: {
     id: string,
@@ -46,8 +33,16 @@ export default function DoneBookmarkItem(props: {
                 {title}
             </a>
             <div className="other-content">
-                {actionBtn("undo", () => { markAsUndone(id, onUndoneSuccess); })}
-                {actionBtn("delete", () => { deleteBookmark(id, onDeleteSuccess); })}
+                <ActionBtn
+                    icon="undo"
+                    title="Undone"
+                    doOnClick={() => { markAsUndone(id, onUndoneSuccess); }}
+                />
+                <ActionBtn
+                    icon="delete"
+                    title="Delete"
+                    doOnClick={() => { deleteBookmark(id, onDeleteSuccess); }}
+                />
             </div>
         </CollectionItem>
     );

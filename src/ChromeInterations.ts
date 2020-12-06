@@ -1,6 +1,18 @@
 /* eslint-disable import/no-unresolved */
 /* eslint-disable import/extensions */
-import { withStore, makeDbObj } from "./Utils";
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
+import { Bookmarked, makeDbObj } from "./Utils";
+
+type WithStoreCallback = (store: chrome.storage.StorageArea, bookmarks: Bookmarked[]) => void
+
+function withStore(callback: WithStoreCallback) {
+    const store = chrome.storage.local;
+    store.get(["bookmarkieDatabase"], ({ bookmarkieDatabase }) => {
+        const bookmarks: Bookmarked[] = JSON.parse(bookmarkieDatabase).saved;
+        callback(store, bookmarks);
+    });
+}
 
 export function markAsFeatured(bookmarkId: string) {
     withStore((store, bookmarks) => {
