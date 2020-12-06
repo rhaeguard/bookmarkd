@@ -5,20 +5,7 @@ import "materialize-css";
 import React from "react";
 import { CollectionItem } from "react-materialize";
 import { deleteBookmark, markAsDone, markAsFeatured } from "../ChromeInterations";
-
-function actionBtn(icon: string, doOnClick: () => void) {
-    return (
-        <i
-            role="button"
-            tabIndex={0}
-            className="material-icons action-btn"
-            onClick={doOnClick}
-            onKeyDown={doOnClick}
-        >
-            {icon}
-        </i>
-    );
-}
+import ActionBtn from "./ActionBtn";
 
 export default function BookmarkItem(props: {
     id: string,
@@ -46,9 +33,21 @@ export default function BookmarkItem(props: {
                 {title}
             </a>
             <div className="other-content">
-                {actionBtn("bookmark", () => { markAsFeatured(id); })}
-                {actionBtn("done", () => { markAsDone(id, onDoneSuccess); })}
-                {actionBtn("delete", () => { deleteBookmark(id, onDeleteSuccess); })}
+                <ActionBtn
+                    icon="bookmark"
+                    title="Make Featured"
+                    doOnClick={() => { markAsFeatured(id); }}
+                />
+                <ActionBtn
+                    icon="done"
+                    title="Done"
+                    doOnClick={() => { markAsDone(id, onDoneSuccess); }}
+                />
+                <ActionBtn
+                    icon="delete"
+                    title="Delete"
+                    doOnClick={() => { deleteBookmark(id, onDeleteSuccess); }}
+                />
             </div>
         </CollectionItem>
     );
