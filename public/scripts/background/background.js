@@ -29,13 +29,13 @@ function handleDbObj(currentValueString, bookmark) {
 
 function greyOutIcon() {
     ba.setIcon({
-        path: "icons/gr_16.png",
+        path: "icons/gr_128.png",
     });
 }
 
 function resetIcon(tabId) {
     ba.setIcon({
-        path: "icons/16.png",
+        path: "icons/128.png",
     });
     ba.setPopup({
         tabId,
