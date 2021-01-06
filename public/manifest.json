@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "Bookmarked React",
+  "name": "Bookmarkd!",
   "author": "Mensur Owary",
   "version": "0.0.1",
   "description": "Google Chrome extension that allows you to have a todo list of the websites you would like to visit",
@@ -8,8 +8,6 @@
       "newtab": "index.html"
   },
   "icons": {
-      "16": "icons/16.png",
-      "48": "icons/48.png",
       "128": "icons/128.png"
   },
   "background": {
@@ -22,8 +20,6 @@
   },
   "browser_action": {
       "default_icons": {
-          "16": "icons/16.png",
-          "48": "icons/48.png",
           "128": "icons/128.png"
       },
       "default_title": "Bookmark!"
