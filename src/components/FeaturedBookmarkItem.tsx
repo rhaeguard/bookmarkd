@@ -30,9 +30,7 @@ export default function FeaturedBookmarkItem(props: {
                         </a>,
                         <span
                             className="action-buttons"
-                            style={{
-                                float: "right",
-                            }}
+                            style={{ float: "right" }}
                             key="featured-action-span"
                         >
                             <a
@@ -59,9 +57,7 @@ export default function FeaturedBookmarkItem(props: {
                 >
                     <p
                         className="card-description"
-                        style={{
-                            fontStyle: "italic",
-                        }}
+                        style={{ fontStyle: "italic" }}
                     >
                         {description}
                     </p>

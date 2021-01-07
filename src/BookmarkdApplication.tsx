@@ -2,7 +2,6 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-undef */
 /* eslint-disable react/jsx-props-no-spreading */
-import "./BookmarkdApplication.css";
 import "materialize-css/dist/css/materialize.min.css";
 import "materialize-css";
 import React, { useState, useEffect } from "react";
@@ -52,8 +51,10 @@ export default function BookmarkdApplication() {
     function registerOnStorageChanged() {
         chrome.storage.onChanged.addListener((changes, areaName) => {
             if (["local", "sync"].includes(areaName)) {
-                const dbStr = changes.bookmarkieDatabase.newValue;
-                displayItems(dbStr);
+                if (changes.bookmarkieDatabase) {
+                    const dbStr = changes.bookmarkieDatabase.newValue;
+                    displayItems(dbStr);
+                }
             }
         });
     }
