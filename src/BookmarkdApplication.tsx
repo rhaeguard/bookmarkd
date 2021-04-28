@@ -149,6 +149,22 @@ export default function BookmarkdApplication() {
         </Collection>
     ));
 
+    const changeMode = () => {
+        storage.get("darkMode", ({ darkMode }) => {
+            let darkModeValue = false;
+            if (darkMode !== undefined) {
+                darkModeValue = !darkMode;
+            }
+            console.log(`set the value to ${darkModeValue}`);
+            // props.setDarkMode(darkModeValue);
+            storage.set({
+                darkMode: darkModeValue,
+            }, () => {
+                window.location.reload();
+            });
+        });
+    };
+
     const renderFloatingToolbar = () => {
         const style = { backgroundColor: "#e57b1e" };
         return (
@@ -161,6 +177,14 @@ export default function BookmarkdApplication() {
                     style={style}
                     text={hideDoneBookmarks ? "Show done bookmarks" : "Hide done bookmarks"}
                     onClick={() => { setHideDoneBookmarks(!hideDoneBookmarks); }}
+                >
+                    <i className="material-icons">history</i>
+                </Action>
+
+                <Action
+                    style={style}
+                    text="Change mode"
+                    onClick={() => { changeMode(); }}
                 >
                     <i className="material-icons">history</i>
                 </Action>
